@@ -1,6 +1,32 @@
 /* Custom Scrollbar HP */
 ::-webkit-scrollbar { width: 0px; background: transparent; } /* Disembunyikan agar UI rapi di HP */
 
+/* Ganti selector body Anda dengan ini */
+body {
+    /* Gunakan dvh agar tinggi layar dinamis mengikuti bar navigasi browser */
+    height: 100dvh; 
+    display: flex;
+    flex-col: column;
+}
+
+/* Tambahkan padding ekstra di bagian paling bawah container form */
+#main-content {
+    /* Memberi ruang agar konten tidak tercekik oleh bottom nav */
+    padding-bottom: 120px !important; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Scroll halus di iPhone */
+}
+
+/* Memastikan area aman untuk HP dengan notch atau bar navigasi bawah */
+.pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 10px);
+}
+
+/* Memperbaiki posisi header agar tidak tertutup notch/status bar */
+header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+}
+
 /* Loader Animasi menggunakan Primary Color */
 .loader {
     border: 4px solid #fcece9; /* primary_light */
