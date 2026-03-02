@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daily Preventive Autogate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">    <title>Daily Preventive Autogate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = {theme: {extend: {colors: {primary: '#eb3c21', primary_hover: '#cf331b', primary_light: '#fcece9'}}}}</script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
+    
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased h-screen overflow-hidden flex flex-col selection:bg-primary_light selection:text-primary">
 
@@ -53,6 +53,14 @@
                     <select id="select-gate" onchange="loadGateStatus()" class="w-full border-2 border-slate-200 rounded-xl p-3 outline-none focus:border-primary font-medium text-slate-700 mb-4 transition-all">
                         <option value="">-- Pilih Lokasi Gate --</option>
                     </select>
+
+                    <a href="https://docs.google.com/spreadsheets/d/1t9F2CBeqXQYrViaSnO_6BK8tnpwhRDerfvAUPIY-Ydk/edit?pli=1&gid=999432491#gid=999432491" 
+                    target="_blank" 
+                    class="inline-flex items-center gap-2 text-[11px] font-bold text-slate-400 hover:text-primary mb-4 transition-colors uppercase tracking-widest border-b border-dashed border-slate-300 pb-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        Buka Database Sheets
+                    </a>
+
                     <button onclick="switchTab('checker')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         Mulai Daily Check
