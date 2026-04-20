@@ -145,13 +145,13 @@
     
     <div id="maint-photo-list" class="space-y-2 mb-3 empty:hidden"></div>
     
-    <input type="file" id="maint-hidden-photo" 
-        accept="image/*" 
-        capture="environment" 
-        multiple 
-        class="hidden" 
-        onchange="handlePhotoSelection(event, 'maintenance')">
-    
+<input type="file" id="maint-hidden-photo" 
+    accept="image/jpeg, image/png" 
+    capture="environment" 
+    multiple 
+    class="hidden" 
+    onchange="handlePhotoSelection(event, 'maintenance')">
+            
     <button type="button" 
         onclick="document.getElementById('maint-hidden-photo').click()" 
         class="w-full flex flex-col items-center justify-center gap-1 border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 hover:text-blue-600 hover:border-blue-500 hover:bg-blue-50 py-4 rounded-xl transition-all group">

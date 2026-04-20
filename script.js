@@ -258,17 +258,19 @@ async function fileToCompressedBase64(file, gateName, officerName) {
 
 async function submitForm(e, formType) {
     e.preventDefault();
-    if (!currentGate) return Swal.fire({icon: 'warning', title: 'Tunggu!', text: 'Pilih Gate di menu Dashboard terlebih dahulu.', confirmButtonColor: '#eb3c21'});
+    if (!currentGate) return Swal.fire({icon: 'warning', title: 'Tunggu!', text: 'Pilih Gate...'});
 
-    document.getElementById("loadingText").innerText = "Mengambil Lokasi & Memproses..."; // Update teks biar user tahu kenapa agak lama
+    // Teks loading diganti, tidak ada lagi kata "Lokasi"
+    document.getElementById("loadingText").innerText = "Memproses Foto...";
     document.getElementById("loadingOverlay").classList.remove("hidden");
-    let ket = "";
+
+    // --- PASTIKAN TIDAK ADA BARIS await getCurrentLocation() DI SINI ---
+
     const now = new Date();
     const tgl = ("0" + now.getDate()).slice(-2) + "/" + ("0" + (now.getMonth() + 1)).slice(-2) + "/" + now.getFullYear().toString().substr(-2);
     const wkt = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
 
-    // Payload dasar
-const payload = { 
+    const payload = { 
         type: formType, 
         tanggal: tgl, 
         waktu: wkt, 
@@ -276,45 +278,52 @@ const payload = {
         officer: currentUser 
     };
 
-    // LOGIKA PERBEDAAN FORM DAILY vs MAINTENANCE
     if(formType === 'daily') {
         let hardwareData = {};
         hardwareGroups.forEach(g => { g.items.forEach(i => {
             const sel = document.querySelector(`input[name="${i.id}"]:checked`);
             hardwareData[i.id] = sel ? sel.value : "";
         });});
-        
         payload.hardware = hardwareData;
-        // --- 2. GABUNGKAN LOKASI KE KETERANGAN DAILY ---
-        const ketInput = document.getElementById("input-keterangan").value;
-payload.keterangan = document.getElementById("input-keterangan").value;        
+        payload.keterangan = document.getElementById("input-keterangan").value;
     } else {
         const selectKomp = document.getElementById("maint-komponen");
-        const valKomp = selectKomp.value;
-        const textKomp = valKomp ? selectKomp.options[selectKomp.selectedIndex].text : "-";
-        const valStat = document.getElementById("maint-status").value;
-        
-        payload.maint_komponen = valKomp;
-        payload.maint_komponen_label = textKomp;
-        payload.maint_status = valStat;
-        // --- 3. GABUNGKAN LOKASI KE KETERANGAN MAINTENANCE ---
-payload.keterangan = document.getElementById("maint-keterangan").value;
-        payload.keterangan = `${ketMaint} | GPS: ${lokasiPetugas}`;
+        payload.maint_komponen = selectKomp.value;
+        payload.maint_komponen_label = selectKomp.options[selectKomp.selectedIndex].text;
+        payload.maint_status = document.getElementById("maint-status").value;
+        payload.keterangan = document.getElementById("maint-keterangan").value;
     }
 
-let photosArray = [];
+    // Bagian kompresi foto yang sering bikin berat jika spek HP rendah
+    let photosArray = [];
     if (selectedPhotos.length > 0) {
         for (let file of selectedPhotos) {
-            // KIRIM currentGate DAN currentUser UNTUK WATERMARK
+            // Kita panggil watermark dengan data yang sudah ada di memori (cepat)
             const base64Data = await fileToCompressedBase64(file, currentGate, currentUser); 
-            photosArray.push({ filename: file.name, mimeType: "image/jpeg", base64: base64Data.split(',')[1] });
+            photosArray.push({ 
+                filename: file.name, 
+                mimeType: "image/jpeg", 
+                base64: base64Data.split(',')[1] 
+            });
         }
     }
     payload.photos = photosArray;
-    // ... sisa kode fetch ke bawah tetap sama ...
-fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })    // ... dst
-}
 
+    // Langsung tembak ke GAS
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(result => {
+            document.getElementById("loadingOverlay").classList.add("hidden");
+            if (result.status === "success") {
+                Swal.fire({icon: 'success', title: 'Berhasil!'}).then(() => {
+                    location.reload(); 
+                });
+            }
+        }).catch(err => {
+            document.getElementById("loadingOverlay").classList.add("hidden");
+            Swal.fire({icon: 'error', title: 'Gagal', text: 'Cek koneksi internet.'});
+        });
+}
 
 
 // Mencegah Klik Kanan
@@ -328,21 +337,3 @@ document.onkeydown = function(e) {
         return false;
     }
 };
-
-
-// Fungsi deteksi lokasu
-async function getCurrentLocation() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            resolve("GPS tidak didukung");
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`);
-            },
-            (err) => {
-                resolve("Lokasi ditolak/error");
-            }
-        );
-    });
-}
