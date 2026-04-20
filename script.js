@@ -337,3 +337,50 @@ document.onkeydown = function(e) {
         return false;
     }
 };
+
+let currentStream = null;
+let activeFormType = '';
+
+async function openCameraModal(type) {
+    activeFormType = type;
+    const modal = document.getElementById('camera-modal');
+    const video = document.getElementById('camera-stream');
+    modal.classList.remove('hidden');
+
+    try {
+        currentStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" }, 
+            audio: false 
+        });
+        video.srcObject = currentStream;
+    } catch (err) {
+        Swal.fire('Error', 'Gagal akses kamera. Pastikan izin diberikan.', 'error');
+        closeCameraModal();
+    }
+}
+
+function closeCameraModal() {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+    document.getElementById('camera-modal').classList.add('hidden');
+}
+
+// Logika Jepret Foto
+document.getElementById('shutter-btn').onclick = () => {
+    const video = document.getElementById('camera-stream');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob((blob) => {
+        const file = new File([blob], `capture_${Date.now()}.jpg`, { type: "image/jpeg" });
+        // Simpan file ke array global kamu
+        selectedPhotos.push(file);
+        // Refresh tampilan list foto
+        renderPhotoList(activeFormType);
+        closeCameraModal();
+    }, 'image/jpeg', 0.8);
+};

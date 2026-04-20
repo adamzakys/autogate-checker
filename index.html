@@ -2,12 +2,24 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">    <title>Daily Preventive Autogate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Daily Preventive Autogate</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = {theme: {extend: {colors: {primary: '#eb3c21', primary_hover: '#cf331b', primary_light: '#fcece9'}}}}</script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#eb3c21',
+                        primary_hover: '#cf331b',
+                        primary_light: '#fcece9'
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
-    
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased h-screen overflow-hidden flex flex-col selection:bg-primary_light selection:text-primary">
 
@@ -54,13 +66,6 @@
                         <option value="">-- Pilih Lokasi Gate --</option>
                     </select>
 
-                    <a href="https://docs.google.com/spreadsheets/d/1t9F2CBeqXQYrViaSnO_6BK8tnpwhRDerfvAUPIY-Ydk/edit?pli=1&gid=999432491#gid=999432491" 
-                    target="_blank" 
-                    class="inline-flex items-center gap-2 text-[11px] font-bold text-slate-400 hover:text-primary mb-4 transition-colors uppercase tracking-widest border-b border-dashed border-slate-300 pb-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                        Buka Database Sheets
-                    </a>
-
                     <button onclick="switchTab('checker')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         Mulai Daily Check
@@ -89,20 +94,25 @@
                     <div id="dynamic-form-container" class="space-y-5 mb-6"></div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6 shadow-sm">
-                        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">Informasi Tambahan</h3>
-                        <div class="mb-5">
-                            <label class="block text-xs font-bold text-slate-600 mb-2">Keterangan Khusus</label>
-                            <textarea id="input-keterangan" rows="3" class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm focus:border-primary outline-none bg-slate-50" placeholder="Tulis catatan jika ada alat bermasalah..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-2">Dokumentasi Foto</label>
-                            <div id="photo-list-container" class="space-y-2 mb-3 empty:hidden"></div>
-                            <input type="file" id="hidden-photo-input" accept="image/*" class="hidden" onchange="handlePhotoSelection(event)">
-                            
-                            <button type="button" onclick="triggerPhotoInput()" class="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 bg-slate-50 text-slate-600 hover:text-primary hover:border-primary hover:bg-primary_light font-bold py-3.5 rounded-xl text-sm transition-all">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Tambah Foto
+                        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">Informasi Tambahan</h3>
+                        
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Keterangan Khusus</label>
+                        <textarea id="input-keterangan" rows="3" class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm focus:border-primary outline-none bg-slate-50 mb-5" placeholder="Tulis catatan jika ada alat bermasalah..."></textarea>
+                        
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Dokumentasi Foto</label>
+                        <div id="photo-list-container" class="space-y-2 mb-4 empty:hidden"></div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="openCameraModal('daily')" class="flex flex-col items-center justify-center gap-1 border-2 border-primary/20 bg-primary_light text-primary py-3 rounded-xl active:scale-95 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                                <span class="text-[10px] font-bold uppercase">Kamera</span>
+                            </button>
+                            <button type="button" onclick="document.getElementById('daily-gallery-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-slate-200 bg-slate-50 text-slate-500 py-3 rounded-xl active:scale-95 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span class="text-[10px] font-bold uppercase">Galeri</span>
                             </button>
                         </div>
+                        <input type="file" id="daily-gallery-input" accept="image/*" multiple class="hidden" onchange="handlePhotoSelection(event, 'daily')">
                     </div>
 
                     <button type="submit" class="w-full bg-primary hover:bg-primary_hover text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 text-lg flex justify-center items-center gap-2 mb-2">
@@ -122,12 +132,11 @@
 
                 <form id="form-maintenance" onsubmit="submitForm(event, 'maintenance')">
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 shadow-sm">
-                        <label class="block text-xs font-bold text-slate-600 mb-2">Pilih Alat (Opsional)</label>
-                        <select id="maint-komponen" class="w-full border-2 border-slate-200 rounded-xl p-3 outline-none focus:border-blue-500 font-medium text-slate-700 mb-4 bg-slate-50">
-                            </select>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Pilih Alat (Opsional)</label>
+                        <select id="maint-komponen" class="w-full border-2 border-slate-200 rounded-xl p-3 outline-none focus:border-blue-500 font-medium text-slate-700 mb-4 bg-slate-50"></select>
 
-                        <label class="block text-xs font-bold text-slate-600 mb-2">Update Status Alat (Opsional)</label>
-                        <select id="maint-status" class="w-full border-2 border-slate-200 rounded-xl p-3 outline-none focus:border-blue-500 font-medium text-slate-700 mb-2 bg-slate-50">
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Update Status Alat</label>
+                        <select id="maint-status" class="w-full border-2 border-slate-200 rounded-xl p-3 outline-none focus:border-blue-500 font-medium text-slate-700 bg-slate-50">
                             <option value="">-- Tetap / Hanya Catatan --</option>
                             <option value="Normal">🟢 Normal (Sudah Diperbaiki)</option>
                             <option value="Peringatan">🟡 Peringatan / Warning</option>
@@ -135,37 +144,25 @@
                         </select>
                     </div>
 
-<div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6 shadow-sm">
-    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Jurnal / Keterangan Pekerjaan</label>
-    <textarea id="maint-keterangan" rows="3" required 
-        class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm focus:border-blue-500 outline-none bg-slate-50 mb-4 transition-all" 
-        placeholder="Misal: Sudah dilakukan pergantian kabel LPR, sekarang alat normal..."></textarea>
-    
-    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Dokumentasi Perbaikan</label>
-    
-    <div id="maint-photo-list" class="space-y-2 mb-3 empty:hidden"></div>
-    
-<input type="file" id="maint-hidden-photo" 
-    accept="image/jpeg, image/png" 
-    capture="environment" 
-    multiple 
-    class="hidden" 
-    onchange="handlePhotoSelection(event, 'maintenance')">
-            
-    <button type="button" 
-        onclick="document.getElementById('maint-hidden-photo').click()" 
-        class="w-full flex flex-col items-center justify-center gap-1 border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 hover:text-blue-600 hover:border-blue-500 hover:bg-blue-50 py-4 rounded-xl transition-all group">
-        
-        <div class="flex items-center gap-2">
-            <svg class="w-6 h-6 text-slate-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            <span class="font-bold text-sm">Ambil Foto / Galeri</span>
-        </div>
-        <span class="text-[10px] text-slate-400 italic">Mendukung kamera langsung & watermark otomatis</span>
-    </button>
-</div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6 shadow-sm">
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Jurnal / Keterangan Pekerjaan</label>
+                        <textarea id="maint-keterangan" rows="3" required class="w-full border-2 border-slate-100 rounded-xl p-3 text-sm focus:border-blue-500 outline-none bg-slate-50 mb-5 transition-all" placeholder="Misal: Sudah dilakukan pergantian kabel LPR..."></textarea>
+                        
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">Dokumentasi Perbaikan</label>
+                        <div id="maint-photo-list" class="space-y-2 mb-4 empty:hidden"></div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="openCameraModal('maintenance')" class="flex flex-col items-center justify-center gap-1 border-2 border-blue-100 bg-blue-50 text-blue-600 py-3 rounded-xl active:scale-95 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                                <span class="text-[10px] font-bold uppercase">Kamera</span>
+                            </button>
+                            <button type="button" onclick="document.getElementById('maint-gallery-input').click()" class="flex flex-col items-center justify-center gap-1 border-2 border-slate-100 bg-slate-50 text-slate-600 py-3 rounded-xl active:scale-95 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span class="text-[10px] font-bold uppercase">Galeri</span>
+                            </button>
+                        </div>
+                        <input type="file" id="maint-gallery-input" accept="image/*" multiple class="hidden" onchange="handlePhotoSelection(event, 'maintenance')">
+                    </div>
 
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 text-lg flex justify-center items-center gap-2 mb-2 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Post Jurnal
@@ -174,25 +171,45 @@
             </section>
         </main>
 
-        <button onclick="showHelp()" class="fixed bottom-24 right-5 bg-primary text-white p-3.5 rounded-full shadow-xl shadow-primary/30 z-30 hover:scale-110 active:scale-95 transition-all flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </button>
-
         <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full flex justify-around items-center pb-safe z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex-1 py-3 pt-4 flex flex-col items-center text-primary transition-colors">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="text-[10px] font-bold">Dashboard</span>
+                <span class="text-[10px] font-bold uppercase tracking-wide">Dashboard</span>
             </button>
-            <button onclick="switchTab('checker')" id="nav-checker" class="flex-1 py-3 pt-4 flex flex-col items-center text-slate-400 hover:text-primary transition-colors">
+            <button onclick="switchTab('checker')" id="nav-checker" class="flex-1 py-3 pt-4 flex flex-col items-center text-slate-400 transition-colors">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                <span class="text-[10px] font-bold">Daily Check</span>
+                <span class="text-[10px] font-bold uppercase tracking-wide">Daily Check</span>
             </button>
-            <button onclick="switchTab('maintenance')" id="nav-maintenance" class="flex-1 py-3 pt-4 flex flex-col items-center text-slate-400 hover:text-blue-600 transition-colors">
+            <button onclick="switchTab('maintenance')" id="nav-maintenance" class="flex-1 py-3 pt-4 flex flex-col items-center text-slate-400 transition-colors">
                 <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="text-[10px] font-bold">Jurnal</span>
+                <span class="text-[10px] font-bold uppercase tracking-wide">Jurnal</span>
             </button>
         </nav>
     </div>
+
+    <div id="camera-modal" class="fixed inset-0 z-[999] hidden bg-black flex flex-col items-center justify-between">
+        <div class="w-full p-4 flex justify-between items-center text-white bg-black/50 backdrop-blur-md">
+            <button onclick="closeCameraModal()" class="p-2 bg-white/10 rounded-full active:bg-white/20">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <span class="text-xs font-bold uppercase tracking-widest">Kamera Autogate</span>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden bg-slate-900">
+            <video id="camera-stream" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div class="absolute inset-0 border-[30px] border-black/40 pointer-events-none flex items-center justify-center">
+                <div class="w-full h-64 border-2 border-white/30 rounded-3xl"></div>
+            </div>
+        </div>
+
+        <div class="w-full p-10 flex justify-center bg-black/50 backdrop-blur-md">
+            <button id="shutter-btn" class="w-20 h-20 bg-white rounded-full border-[6px] border-slate-400 active:scale-90 transition-all shadow-2xl flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full border-2 border-slate-900"></div>
+            </button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
