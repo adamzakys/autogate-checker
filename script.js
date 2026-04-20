@@ -210,7 +210,7 @@ function showHelp() {
 }
 
 // FUNGSI KOMPRESI FOTO MENGGUNAKAN CANVAS (Mencegah Drive Penuh)
-async function fileToCompressedBase64(file, gateName) {
+async function fileToCompressedBase64(file, gateName, officerName) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -219,7 +219,6 @@ async function fileToCompressedBase64(file, gateName) {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Ukuran maksimal (biar gak kegedean di Google Sheets)
                 const MAX_WIDTH = 800;
                 let width = img.width;
                 let height = img.height;
@@ -233,19 +232,22 @@ async function fileToCompressedBase64(file, gateName) {
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // --- TAMBAHKAN WATERMARK DI SINI ---
+                // --- WATERMARK LENGKAP ---
                 const now = new Date();
                 const timestamp = now.toLocaleString('id-ID');
-                const watermarkText = `${gateName} | ${timestamp}`;
+                // Teks: "Gate 01 | Zaky | 20/04/2026 11:30"
+                const watermarkText = `${gateName} | ${officerName} | ${timestamp}`;
                 
-                ctx.font = 'bold 20px Arial';
-                ctx.fillStyle = 'rgba(255, 255, 0, 0.8)'; // Warna kuning transparan
-                ctx.textAlign = 'right';
-                // Gambar teks di pojok kanan bawah
-                ctx.fillText(watermarkText, width - 20, height - 20);
-                // -----------------------------------
+                // Background teks agar terbaca di foto terang/gelap
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, height - 40, width, 40);
 
-                resolve(canvas.toDataURL('image/jpeg', 0.7)); // Kompresi 70%
+                ctx.font = 'bold 18px Arial';
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.fillText(watermarkText, width / 2, height - 15);
+
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
             };
             img.src = e.target.result;
         };
@@ -260,17 +262,13 @@ async function submitForm(e, formType) {
 
     document.getElementById("loadingText").innerText = "Mengambil Lokasi & Memproses..."; // Update teks biar user tahu kenapa agak lama
     document.getElementById("loadingOverlay").classList.remove("hidden");
-
-    // --- 1. AMBIL LOKASI GPS ---
-    const lokasiPetugas = await getCurrentLocation(); 
-
     let ket = "";
     const now = new Date();
     const tgl = ("0" + now.getDate()).slice(-2) + "/" + ("0" + (now.getMonth() + 1)).slice(-2) + "/" + now.getFullYear().toString().substr(-2);
     const wkt = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
 
     // Payload dasar
-    const payload = { 
+const payload = { 
         type: formType, 
         tanggal: tgl, 
         waktu: wkt, 
@@ -289,8 +287,7 @@ async function submitForm(e, formType) {
         payload.hardware = hardwareData;
         // --- 2. GABUNGKAN LOKASI KE KETERANGAN DAILY ---
         const ketInput = document.getElementById("input-keterangan").value;
-        payload.keterangan = `${ketInput} | GPS: ${lokasiPetugas}`;
-        
+payload.keterangan = document.getElementById("input-keterangan").value;        
     } else {
         const selectKomp = document.getElementById("maint-komponen");
         const valKomp = selectKomp.value;
@@ -301,23 +298,21 @@ async function submitForm(e, formType) {
         payload.maint_komponen_label = textKomp;
         payload.maint_status = valStat;
         // --- 3. GABUNGKAN LOKASI KE KETERANGAN MAINTENANCE ---
-        const ketMaint = document.getElementById("maint-keterangan").value;
+payload.keterangan = document.getElementById("maint-keterangan").value;
         payload.keterangan = `${ketMaint} | GPS: ${lokasiPetugas}`;
     }
 
-    let photosArray = [];
+let photosArray = [];
     if (selectedPhotos.length > 0) {
         for (let file of selectedPhotos) {
-            // --- 4. KIRIM currentGate BIAR JADI WATERMARK ---
-            const base64Data = await fileToCompressedBase64(file, currentGate); 
+            // KIRIM currentGate DAN currentUser UNTUK WATERMARK
+            const base64Data = await fileToCompressedBase64(file, currentGate, currentUser); 
             photosArray.push({ filename: file.name, mimeType: "image/jpeg", base64: base64Data.split(',')[1] });
         }
     }
     payload.photos = photosArray;
-
     // ... sisa kode fetch ke bawah tetap sama ...
-    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-    // ... dst
+fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })    // ... dst
 }
 
 
