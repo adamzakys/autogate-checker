@@ -210,35 +210,59 @@ function showHelp() {
 }
 
 // FUNGSI KOMPRESI FOTO MENGGUNAKAN CANVAS (Mencegah Drive Penuh)
-const fileToCompressedBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 1024; const MAX_HEIGHT = 1024;
-            let width = img.width; let height = img.height;
-            if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-            } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            // Kualitas kompresi JPG 0.6 (sangat optimal untuk dokumen)
-            resolve(canvas.toDataURL('image/jpeg', 0.6));
+async function fileToCompressedBase64(file, gateName) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Ukuran maksimal (biar gak kegedean di Google Sheets)
+                const MAX_WIDTH = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // --- TAMBAHKAN WATERMARK DI SINI ---
+                const now = new Date();
+                const timestamp = now.toLocaleString('id-ID');
+                const watermarkText = `${gateName} | ${timestamp}`;
+                
+                ctx.font = 'bold 20px Arial';
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.8)'; // Warna kuning transparan
+                ctx.textAlign = 'right';
+                // Gambar teks di pojok kanan bawah
+                ctx.fillText(watermarkText, width - 20, height - 20);
+                // -----------------------------------
+
+                resolve(canvas.toDataURL('image/jpeg', 0.7)); // Kompresi 70%
+            };
+            img.src = e.target.result;
         };
-    };
-    reader.onerror = error => reject(error);
-});
+        reader.readAsDataURL(file);
+    });
+}
 
 
 async function submitForm(e, formType) {
     e.preventDefault();
     if (!currentGate) return Swal.fire({icon: 'warning', title: 'Tunggu!', text: 'Pilih Gate di menu Dashboard terlebih dahulu.', confirmButtonColor: '#eb3c21'});
 
-    document.getElementById("loadingText").innerText = "Memproses & Upload...";
+    document.getElementById("loadingText").innerText = "Mengambil Lokasi & Memproses..."; // Update teks biar user tahu kenapa agak lama
     document.getElementById("loadingOverlay").classList.remove("hidden");
+
+    // --- 1. AMBIL LOKASI GPS ---
+    const lokasiPetugas = await getCurrentLocation(); 
 
     let ket = "";
     const now = new Date();
@@ -263,7 +287,9 @@ async function submitForm(e, formType) {
         });});
         
         payload.hardware = hardwareData;
-        payload.keterangan = document.getElementById("input-keterangan").value;
+        // --- 2. GABUNGKAN LOKASI KE KETERANGAN DAILY ---
+        const ketInput = document.getElementById("input-keterangan").value;
+        payload.keterangan = `${ketInput} | GPS: ${lokasiPetugas}`;
         
     } else {
         const selectKomp = document.getElementById("maint-komponen");
@@ -271,37 +297,27 @@ async function submitForm(e, formType) {
         const textKomp = valKomp ? selectKomp.options[selectKomp.selectedIndex].text : "-";
         const valStat = document.getElementById("maint-status").value;
         
-        payload.maint_komponen = valKomp;             // ID Komponen (cth: "lpr")
-        payload.maint_komponen_label = textKomp;      // Nama Tampil (cth: "Kamera LPR")
-        payload.maint_status = valStat;               // Status (cth: "Normal")
-        payload.keterangan = document.getElementById("maint-keterangan").value;
+        payload.maint_komponen = valKomp;
+        payload.maint_komponen_label = textKomp;
+        payload.maint_status = valStat;
+        // --- 3. GABUNGKAN LOKASI KE KETERANGAN MAINTENANCE ---
+        const ketMaint = document.getElementById("maint-keterangan").value;
+        payload.keterangan = `${ketMaint} | GPS: ${lokasiPetugas}`;
     }
 
     let photosArray = [];
     if (selectedPhotos.length > 0) {
         for (let file of selectedPhotos) {
-            const base64Data = await fileToCompressedBase64(file); 
+            // --- 4. KIRIM currentGate BIAR JADI WATERMARK ---
+            const base64Data = await fileToCompressedBase64(file, currentGate); 
             photosArray.push({ filename: file.name, mimeType: "image/jpeg", base64: base64Data.split(',')[1] });
         }
     }
     payload.photos = photosArray;
 
+    // ... sisa kode fetch ke bawah tetap sama ...
     fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-        .then(res => res.json())
-        .then(result => {
-            if (result.status === "success") {
-                Swal.fire({icon: 'success', title: 'Berhasil!', text: 'Data berhasil tersimpan.', confirmButtonColor: '#eb3c21'}).then(() => {
-                    // Hard Reload agar timeline dashboard langsung ter-update otomatis
-                    window.location.href = window.location.href.split('?')[0] + '?v=' + new Date().getTime(); 
-                });
-            } else {
-                document.getElementById("loadingOverlay").classList.add("hidden");
-                Swal.fire({icon: 'error', title: 'Error', text: result.message, confirmButtonColor: '#eb3c21'});
-            }
-        }).catch(err => {
-            document.getElementById("loadingOverlay").classList.add("hidden");
-            Swal.fire({icon: 'error', title: 'Koneksi Gagal', text: 'Pastikan sinyal stabil.', confirmButtonColor: '#eb3c21'});
-        });
+    // ... dst
 }
 
 
@@ -317,3 +333,21 @@ document.onkeydown = function(e) {
         return false;
     }
 };
+
+
+// Fungsi deteksi lokasu
+async function getCurrentLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve("GPS tidak didukung");
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`);
+            },
+            (err) => {
+                resolve("Lokasi ditolak/error");
+            }
+        );
+    });
+}
