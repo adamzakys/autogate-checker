@@ -1,0 +1,16 @@
+{
+  "name": "Daily Preventive Autogate",
+  "short_name": "Preventive",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fcece9",
+  "theme_color": "#eb3c21",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/8633/8633215.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

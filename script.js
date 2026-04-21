@@ -111,8 +111,15 @@ function loadGateStatus() {
     panel.classList.remove("hidden");
 
     const historyData = globalHistory[currentGate];
-    if (!historyData) {
-        list.innerHTML = `<p class="text-[11px] text-slate-500 font-medium p-4 text-center bg-slate-100 rounded-xl border border-slate-200">Belum ada riwayat pengecekan.</p>`;
+    if (!historyData || historyData.length === 0) {
+        list.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-6 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 text-center transition-colors duration-300">
+                <div class="bg-green-100 dark:bg-green-900/30 text-green-500 p-3 rounded-full mb-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-300 font-bold mb-1">Semua Terlihat Baik! ✅</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Belum ada riwayat masalah di gate ini.</p>
+            </div>`;
         return;
     }
 
@@ -120,18 +127,18 @@ function loadGateStatus() {
     historyData.forEach((item, index) => {
         if (item.status === "Normal") {
             htmlContent += `
-                <div onclick="showHistoryDetail('${currentGate}', ${index})" class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 shadow-sm cursor-pointer hover:bg-green-100 transition">
-                    <div class="bg-green-100 p-1.5 rounded-full"><svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
-                    <div class="flex-1"><p class="text-[13px] font-bold text-green-800 tracking-wide">Semua Perangkat Aman</p><p class="text-[10px] text-green-600 font-medium mt-1">${item.tanggal}</p></div>
+                <div onclick="showHistoryDetail('${currentGate}', ${index})" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 p-4 rounded-xl flex items-center gap-3 shadow-sm cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition">
+                    <div class="bg-green-100 dark:bg-green-800/50 p-1.5 rounded-full"><svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                    <div class="flex-1"><p class="text-[13px] font-bold text-green-800 dark:text-green-300 tracking-wide">Semua Perangkat Aman</p><p class="text-[10px] text-green-600 dark:text-green-400 font-medium mt-1">${item.tanggal}</p></div>
                 </div>`;
         } else {
             const isRusak = item.status === "Rusak/Error";
-            const badgeColor = isRusak ? "bg-red-100 text-red-600 border-red-200" : "bg-yellow-100 text-yellow-600 border-yellow-200";
+            const badgeColor = isRusak ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/50" : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/50";
             const borderColor = isRusak ? "border-l-red-500" : "border-l-yellow-400";
             htmlContent += `
-                <div onclick="showHistoryDetail('${currentGate}', ${index})" class="bg-white border-l-[5px] ${borderColor} p-3.5 rounded-xl shadow-sm border-y border-r border-slate-200 flex flex-col gap-2 cursor-pointer hover:bg-slate-50 transition relative">
-                    <div class="flex justify-between items-center pr-4"><span class="font-bold text-slate-700 text-[13px]">${item.komponen}</span><span class="${badgeColor} border px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide">${item.status}</span></div>
-                    <div class="flex items-center gap-2 mt-1 flex-wrap"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold">📍 ${currentGate}</span><span class="text-[10px] text-slate-400 font-medium">${item.tanggal}</span></div>
+                <div onclick="showHistoryDetail('${currentGate}', ${index})" class="bg-white dark:bg-slate-800 border-l-[5px] ${borderColor} p-3.5 rounded-xl shadow-sm border-y border-r border-slate-200 dark:border-slate-700 flex flex-col gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition relative">
+                    <div class="flex justify-between items-center pr-4"><span class="font-bold text-slate-700 dark:text-slate-200 text-[13px]">${item.komponen}</span><span class="${badgeColor} border px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide">${item.status}</span></div>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap"><span class="bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded text-[10px] font-bold">📍 ${currentGate}</span><span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">${item.tanggal}</span></div>
                 </div>`;
         }
     });
@@ -159,9 +166,9 @@ function renderFormUI() {
     const container = document.getElementById("dynamic-form-container");
     let html = "";
     hardwareGroups.forEach(group => {
-        html += `<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"><div class="bg-slate-50/50 px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-3"><h2 class="font-bold text-[13px] uppercase tracking-wide text-slate-800 flex items-center gap-2"><div class="w-1.5 h-4 bg-primary rounded-full"></div>${group.name}</h2><div class="flex bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm text-xs font-bold w-full sm:w-auto"><span class="px-3 py-2 bg-slate-100 text-slate-500 border-r border-slate-200 flex-1 text-center">SET ALL</span><button type="button" onclick="setAllGroup('${group.id}', 'Normal')" class="px-3 py-2 hover:bg-green-100 text-green-600 border-r border-slate-200 flex-1">N</button><button type="button" onclick="setAllGroup('${group.id}', 'Peringatan')" class="px-3 py-2 hover:bg-yellow-100 text-yellow-500 border-r border-slate-200 flex-1">P</button><button type="button" onclick="setAllGroup('${group.id}', 'Rusak/Error')" class="px-3 py-2 hover:bg-red-100 text-red-500 flex-1">R</button></div></div><div class="p-4 space-y-4">`;
+        html += `<div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm transition-colors duration-300"><div class="bg-slate-50/50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between sm:items-center gap-3"><h2 class="font-bold text-[13px] uppercase tracking-wide text-slate-800 dark:text-slate-200 flex items-center gap-2"><div class="w-1.5 h-4 bg-primary rounded-full"></div>${group.name}</h2><div class="flex bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden shadow-sm text-xs font-bold w-full sm:w-auto"><span class="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-slate-600 flex-1 text-center">SET ALL</span><button type="button" onclick="setAllGroup('${group.id}', 'Normal')" class="px-3 py-2 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 border-r border-slate-200 dark:border-slate-600 flex-1 transition-colors">N</button><button type="button" onclick="setAllGroup('${group.id}', 'Peringatan')" class="px-3 py-2 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 text-yellow-500 dark:text-yellow-400 border-r border-slate-200 dark:border-slate-600 flex-1 transition-colors">P</button><button type="button" onclick="setAllGroup('${group.id}', 'Rusak/Error')" class="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 flex-1 transition-colors">R</button></div></div><div class="p-4 space-y-4">`;
         group.items.forEach(item => {
-            html += `<div class="flex flex-col border-b border-slate-100 pb-3 last:border-0 last:pb-0"><span class="text-xs font-bold text-slate-700 mb-2">${item.label}</span><div class="flex space-x-2"><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-green-50 border border-slate-200 rounded-xl p-2 transition-colors has-[:checked]:bg-green-50 has-[:checked]:border-green-500 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Normal" class="group-${group.id} mb-1 !accent-green-600" required><span class="text-[10px] font-bold text-slate-600">Normal</span></label><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-yellow-50 border border-slate-200 rounded-xl p-2 transition-colors has-[:checked]:bg-yellow-50 has-[:checked]:border-yellow-400 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Peringatan" class="group-${group.id} mb-1 !accent-yellow-500"><span class="text-[10px] font-bold text-slate-600">Warning</span></label><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-xl p-2 transition-colors has-[:checked]:bg-red-50 has-[:checked]:border-red-500 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Rusak/Error" class="group-${group.id} mb-1 !accent-red-600"><span class="text-[10px] font-bold text-slate-600">Rusak</span></label></div></div>`;
+            html += `<div class="flex flex-col border-b border-slate-100 dark:border-slate-700 pb-3 last:border-0 last:pb-0"><span class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">${item.label}</span><div class="flex space-x-2"><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-200 dark:border-slate-700 rounded-xl p-2 transition-colors has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-900/20 has-[:checked]:border-green-500 dark:has-[:checked]:border-green-500 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Normal" class="group-${group.id} mb-1 !accent-green-600" required><span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Normal</span></label><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 border border-slate-200 dark:border-slate-700 rounded-xl p-2 transition-colors has-[:checked]:bg-yellow-50 dark:has-[:checked]:bg-yellow-900/20 has-[:checked]:border-yellow-400 dark:has-[:checked]:border-yellow-500 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Peringatan" class="group-${group.id} mb-1 !accent-yellow-500"><span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Warning</span></label><label class="flex-1 flex flex-col items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900 hover:bg-red-50 dark:hover:bg-red-900/20 border border-slate-200 dark:border-slate-700 rounded-xl p-2 transition-colors has-[:checked]:bg-red-50 dark:has-[:checked]:bg-red-900/20 has-[:checked]:border-red-500 dark:has-[:checked]:border-red-500 has-[:checked]:shadow-sm"><input type="radio" name="${item.id}" value="Rusak/Error" class="group-${group.id} mb-1 !accent-red-600"><span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Rusak</span></label></div></div>`;
         });
         html += `</div></div>`;
     });
@@ -189,7 +196,7 @@ function renderPhotoList(type) {
     if(!container) return;
     container.innerHTML = "";
     selectedPhotos.forEach((file, index) => {
-        container.innerHTML += `<div class="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-xl"><div class="flex items-center gap-3 overflow-hidden"><div class="bg-primary_light text-primary p-1.5 rounded-lg"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div><span class="text-xs font-medium text-slate-700 truncate">${file.name}</span></div><button type="button" onclick="removePhoto(${index}, '${type}')" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div>`;
+        container.innerHTML += `<div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-xl transition-colors duration-300"><div class="flex items-center gap-3 overflow-hidden"><div class="bg-primary_light dark:bg-primary/20 text-primary p-1.5 rounded-lg"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div><span class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">${file.name}</span></div><button type="button" onclick="removePhoto(${index}, '${type}')" class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div>`;
     });
 }
 
@@ -261,8 +268,21 @@ async function submitForm(e, formType) {
     if (!currentGate) return Swal.fire({icon: 'warning', title: 'Tunggu!', text: 'Pilih Gate...'});
 
     // Teks loading diganti, tidak ada lagi kata "Lokasi"
-    document.getElementById("loadingText").innerText = "Memproses Foto...";
-    document.getElementById("loadingOverlay").classList.remove("hidden");
+    document.getElementById("loadingText").innerText = "Memproses Form...";
+    
+    // UI Button Loading State
+    const btnSubmit = formType === 'daily' ? document.getElementById('btn-submit-daily') : document.getElementById('btn-submit-maint');
+    const btnText = formType === 'daily' ? document.getElementById('btn-submit-daily-text') : document.getElementById('btn-submit-maint-text');
+    const btnLoader = formType === 'daily' ? document.getElementById('btn-submit-daily-loader') : document.getElementById('btn-submit-maint-loader');
+    
+    if(btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+        if(btnText) btnText.classList.add('hidden');
+        if(btnLoader) btnLoader.classList.remove('hidden');
+    } else {
+        document.getElementById("loadingOverlay").classList.remove("hidden");
+    }
 
     // --- PASTIKAN TIDAK ADA BARIS await getCurrentLocation() DI SINI ---
 
@@ -314,6 +334,12 @@ async function submitForm(e, formType) {
         .then(res => res.json())
         .then(result => {
             document.getElementById("loadingOverlay").classList.add("hidden");
+            if(btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+                if(btnText) btnText.classList.remove('hidden');
+                if(btnLoader) btnLoader.classList.add('hidden');
+            }
             if (result.status === "success") {
                 Swal.fire({icon: 'success', title: 'Berhasil!'}).then(() => {
                     location.reload(); 
@@ -321,6 +347,12 @@ async function submitForm(e, formType) {
             }
         }).catch(err => {
             document.getElementById("loadingOverlay").classList.add("hidden");
+            if(btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+                if(btnText) btnText.classList.remove('hidden');
+                if(btnLoader) btnLoader.classList.add('hidden');
+            }
             Swal.fire({icon: 'error', title: 'Gagal', text: 'Cek koneksi internet.'});
         });
 }
@@ -340,19 +372,64 @@ document.onkeydown = function(e) {
 
 let currentStream = null;
 let activeFormType = '';
+let currentFacingMode = 'environment';
+let flashEnabled = false;
+let trackWithFlash = null;
+
+async function switchCamera() {
+    currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+    await openCameraModal(activeFormType);
+}
+
+async function toggleFlash() {
+    if (!trackWithFlash) return;
+    flashEnabled = !flashEnabled;
+    try {
+        await trackWithFlash.applyConstraints({
+            advanced: [{ torch: flashEnabled }]
+        });
+        const btn = document.getElementById('flash-btn');
+        if (flashEnabled) {
+            btn.classList.add('text-yellow-400');
+        } else {
+            btn.classList.remove('text-yellow-400');
+        }
+    } catch (e) {
+        console.log("Flash not supported", e);
+    }
+}
 
 async function openCameraModal(type) {
     activeFormType = type;
     const modal = document.getElementById('camera-modal');
     const video = document.getElementById('camera-stream');
+    const flashBtn = document.getElementById('flash-btn');
     modal.classList.remove('hidden');
+
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
 
     try {
         currentStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "environment" }, 
+            video: { facingMode: currentFacingMode }, 
             audio: false 
         });
         video.srcObject = currentStream;
+        
+        // Cek dukungan Flash
+        const track = currentStream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        if (capabilities.torch) {
+            flashBtn.classList.remove('hidden');
+            trackWithFlash = track;
+        } else {
+            flashBtn.classList.add('hidden');
+            trackWithFlash = null;
+        }
+        flashEnabled = false;
+        flashBtn.classList.remove('text-yellow-400');
+
     } catch (err) {
         Swal.fire('Error', 'Gagal akses kamera. Pastikan izin diberikan.', 'error');
         closeCameraModal();
